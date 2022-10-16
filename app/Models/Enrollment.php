@@ -63,6 +63,6 @@ class Enrollment extends Model
     public function scopeActive($query)
     {
         $now = Carbon::now();
-        return $query->where('status', 1)->whereDate('expiry_date','<',$now);
+        return $query->where('status', 1)->whereDate('expiry_date','>',$now);
     }
 }
