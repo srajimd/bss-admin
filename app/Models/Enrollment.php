@@ -62,6 +62,6 @@ class Enrollment extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('status', 1)->whereDate('expiry_date','>',now());
+        return $query->where('status', 1)->whereDate('expiry_date','<',now());
     }
 }
