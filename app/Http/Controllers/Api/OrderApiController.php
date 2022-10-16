@@ -27,28 +27,19 @@ class OrderApiController extends Controller
     {         
         $id = auth()->user()->id;         
 
-        $input = $request->only('course_id');
+        $input = $request->only('course_id', 'transaction_id');
 
 	    $validator = Validator::make($input, [        	
-            'course_id' => 'required',            
+            'course_id' => 'required', 
+            'transaction_id' => 'required',           
         ]);
 
         if ($validator->fails()) {
 
             $errors = $validator->errors()->getMessages();
 
-            $custom_error = [];
-
-            foreach ($errors as $key => $value) {
-                if(is_array($value)){
-                    $custom_error[$key] = Arr::first($value);
-                }else{
-                    $custom_error[$key] = $value;
-                }
-            }
-                               
             return response()->json([                                
-                                'data'      => $custom_error, 
+                                'data'      => $errors, 
                                 'status'    => 'failure'
                             ], 400);
         }
@@ -78,13 +69,19 @@ class OrderApiController extends Controller
         }else{
 
             $enrollment = Enrollment::create([
-                'user_id'       => $id,
-                'course_id'     => $request->course_id,
-                'name'          => $course->name,
-                'duration'      => $course->duration,
-                'amount'        => $course->amount,
-                'expiry_date'   => Carbon::now()->addDays((int)$course->duration),               
+                'user_id'        => $id,
+                'course_id'      => $request->course_id,
+                'transaction_id' => $request->transaction_id,
+                'name'           => $course->name,
+                'duration'       => $course->duration,
+                'amount'         => $course->amount,
+                'expiry_date'    => Carbon::now()->addDays((int)$course->duration),               
             ]);
+
+            $enrollment->enrollment_id = $enrollment->id;
+            unset($enrollment->id);
+
+            //echo '<pre>'; print_r($enrollment); echo '</pre>'; exit;
 
             return response()->json([   
                                 'data'    => $enrollment,                                
@@ -106,14 +103,21 @@ class OrderApiController extends Controller
         $id = auth()->user()->id;         
 
         if($request->has('enrollment_id')){
-            Enrollment::where('id', $request->enrollment_id)
+            $enroll_update_result = Enrollment::where('id', $request->enrollment_id)
                         ->update(['status' => 1]);
-        }  
+        } 
         
-        return response()->json([   
-                                'data'    => 'Status updated',                                
-                                'status'  => 'success'
-                            ], 200); 
+        if(!empty($enroll_update_result)){
+            return response()->json([   
+                'data'    => 'Status updated',                                
+                'status'  => 'success'
+            ], 200);
+        } else {
+            return response()->json([                                
+                'data' => array('message' => 'Status update has been failed. No enrollment found.'),  
+                'status'    => 'failure'
+            ], 400); 
+        }      
                   
     } 
 

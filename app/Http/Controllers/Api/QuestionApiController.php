@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Question;
 use App\Models\Course;
+use App\Models\Enrollment;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Illuminate\Support\Facades\Validator;
@@ -27,9 +28,24 @@ class QuestionApiController extends Controller
         $input = $request->all();
 
         //print_r($input); exit;
+        
+        $validator = Validator::make($input, [        	
+            'course_id' => 'required', 
+            'enrollment_id' => 'required',           
+        ]);
 
-        //$course_id = $request->input('filter.course_id');
+        if ($validator->fails()) {
+
+            $errors = $validator->errors()->getMessages();
+                                         
+            return response()->json([                                
+                                'data'      => $errors, 
+                                'status'    => 'failure'
+                            ], 400);
+        }
+
         $course_id = $input['course_id'];
+        $enrollment_id = $input['enrollment_id'];
 
         $id = auth()->user()->id;
 
@@ -38,6 +54,7 @@ class QuestionApiController extends Controller
         $results = DB::table('question_user')             
                         ->where('user_id', $id)             
                         ->where('course_id', $course_id) 
+                        ->where('enrollment_id', $enrollment_id)
                         ->get();
 
         //dd(DB::getQueryLog());           
@@ -58,6 +75,8 @@ class QuestionApiController extends Controller
 
             $data = array();
 
+            $now = Carbon::now();
+
             foreach($random_questions as $random_question){
                 $questionsIds[] = $random_question->id;
                  $data[] = [
@@ -65,8 +84,8 @@ class QuestionApiController extends Controller
                     'question_id' => $random_question->id, 
                     'course_id' => $course_id,
                     'answer_id' => 0,
-                    'enrollment_id' => 0,
-                    'date_added' => ''
+                    'enrollment_id' => $enrollment_id,
+                    'date_added' => $now
                 ];               
                 
             } 
@@ -86,10 +105,7 @@ class QuestionApiController extends Controller
                         ->get();                                        
 
         return response()->json([
-                                'data'    => [
-                                    'exam'=>$exam_details,
-                                    'questions'=>$questions
-                                ],  
+                                'data'    => $questions,  
                                 'status'  => 'success'
                             ], 200);                         
     }
@@ -98,10 +114,11 @@ class QuestionApiController extends Controller
     {    
         $id = auth()->user()->id;         
 
-        $input = $request->only('course_id', 'questions');
+        $input = $request->only('course_id', 'enrollment_id', 'questions');
 
         $validator = Validator::make($input, [          
             'course_id' => 'required', 
+            'enrollment_id' => 'required', 
             'questions' => 'required|array',            
         ]);
 
@@ -109,7 +126,7 @@ class QuestionApiController extends Controller
 
             $errors = $validator->errors()->getMessages();
 
-            $custom_error = [];
+            /*$custom_error = [];
 
             foreach ($errors as $key => $value) {
                 if(is_array($value)){
@@ -117,10 +134,10 @@ class QuestionApiController extends Controller
                 }else{
                     $custom_error[$key] = $value;
                 }
-            }
+            }*/
                                
             return response()->json([                                
-                                'data'      => $custom_error, 
+                                'data'      => $errors, 
                                 'status'    => 'failure'
                             ], 400);
         }
@@ -131,7 +148,10 @@ class QuestionApiController extends Controller
             $questions = array();
         } 
 
-        $course_id = $request->input('course_id');               
+        //print_r($questions);
+
+        $course_id = $request->input('course_id'); 
+        $enrollment_id = $request->input('enrollment_id');              
 
         $course = Course::active()->find($course_id);
 
@@ -146,15 +166,27 @@ class QuestionApiController extends Controller
                                 'status' => 'failure'
                             ], 400);
         }else{
-           
-            foreach($questions as $question){ 
+
+            if(!empty($questions['question_id']) && !empty($questions['answer_id'])){
                 DB::table('question_user')
-                        ->where('user_id', $id)             
-                        ->where('course_id', $course_id)
-                        ->where('question_id', $question['question_id'])
-                        ->update([
-                            'answer_id' => $question['answer_id']
-                        ]); 
+                    ->where('user_id', $id)             
+                    ->where('course_id', $course_id)
+                    ->where('enrollment_id', $enrollment_id)
+                    ->where('question_id', $questions['question_id'])
+                    ->update([
+                        'answer_id' => $questions['answer_id']
+                    ]); 
+            }else{
+                foreach($questions as $question){
+                    DB::table('question_user')
+                            ->where('user_id', $id)             
+                            ->where('course_id', $course_id)
+                            ->where('enrollment_id', $enrollment_id)
+                            ->where('question_id', $question['question_id'])
+                            ->update([
+                                'answer_id' => $question['answer_id']
+                            ]); 
+                }
             }
 
             return response()->json([   
@@ -162,6 +194,51 @@ class QuestionApiController extends Controller
                                 'status'=> 'success'
                             ], 200); 
         }          
+    }
+
+    public function exam(Request $request)
+    {         
+        $id = auth()->user()->id;         
+
+        $input = $request->only('enrollment_id');
+
+	    $validator = Validator::make($input, [        	
+            'enrollment_id' => 'required'           
+        ]);
+
+        if ($validator->fails()) {
+
+            $errors = $validator->errors()->getMessages();
+
+            return response()->json([                                
+                                'data'      => $errors, 
+                                'status'    => 'failure'
+                            ], 400);
+        }
+
+        $enrollment = Enrollment::active()->find($request->enrollment_id);
+
+        //DB::enableQueryLog();    
+
+        $now = Carbon::now();
+
+        //dd(DB::getQueryLog()); 
+        if(!$enrollment){
+            return response()->json([                                
+                                'data' => array('message' => 'Enrollment has been expired'),  
+                                'status'    => 'failure'
+                            ], 400);            
+        }else{
+
+            $enrollment = Enrollment::where('id', $request->enrollment_id)
+                            ->select('id', DB::raw("'{$now}' as date"), 'duration', 'total_marks', 'expiry_date')
+                            ->get(); 
+
+            return response()->json([   
+                                'data'    => $enrollment,                                
+                                'status'  => 'success'
+                            ], 200); 
+        }	       
     }
 
     /**

@@ -39,7 +39,7 @@ class EnrollmentController extends Controller
 
         $data['enrollments'] = QueryBuilder::for(Enrollment::class)
                                 ->join('users', 'users.id', 'enrollments.user_id')
-                                ->where('enrollments.status', '1')
+                                //->where('enrollments.status', '1')
                                 ->allowedFilters([
                                     'name',
                                     AllowedFilter::exact('status'),

@@ -41,8 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/my/course/{active}', [OrderApiController::class, 'courses']);
 
 	Route::get('/get/questions', [QuestionApiController::class, 'index']);
-
 	Route::post('/post/questions', [QuestionApiController::class, 'create']);
+	Route::get('/get/exam', [QuestionApiController::class, 'exam']);
 
 }); 
 

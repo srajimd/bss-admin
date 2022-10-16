@@ -23,11 +23,13 @@ class Enrollment extends Model
     protected $fillable = [
         'user_id',
         'course_id',
+        'transaction_id',
         'name',
         'duration',
         'amount',
         'status',
-        'expiry_date'       
+        'expiry_date',
+        'total_marks'    
     ];
     
     /**
@@ -60,6 +62,6 @@ class Enrollment extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('status', 1);
+        return $query->where('status', 1)->whereDate('expiry_date','>',now());
     }
 }
