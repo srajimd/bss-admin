@@ -12,3 +12,5 @@ if ($mysqli->connect_errno) {
 }
 
 phpinfo();
+
+echo 'thank you';
