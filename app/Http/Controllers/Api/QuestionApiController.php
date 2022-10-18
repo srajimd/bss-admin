@@ -200,10 +200,10 @@ class QuestionApiController extends Controller
     {         
         $id = auth()->user()->id;         
 
-        $input = $request->only('enrollment_id');
+        $input = $request->only('course_id');
 
 	    $validator = Validator::make($input, [        	
-            'enrollment_id' => 'required'           
+            'course_id' => 'required'           
         ]);
 
         if ($validator->fails()) {
@@ -214,13 +214,16 @@ class QuestionApiController extends Controller
                                 'data'      => $errors, 
                                 'status'    => 'failure'
                             ], 400);
-        }
-
-        $enrollment = Enrollment::active()->find($request->enrollment_id);
+        }       
 
         //DB::enableQueryLog();    
 
         $now = Carbon::now();
+        $enrollment = Enrollment::where('course_id', $request->course_id)
+                            ->where('status', 1)
+                            ->whereDate('expiry_date','>',$now)
+                            ->select('id as enrollment_id', DB::raw("'{$now}' as date"), 'duration', 'total_marks', 'expiry_date')
+                            ->get();
 
         //dd(DB::getQueryLog()); 
         if(!$enrollment){
@@ -228,11 +231,7 @@ class QuestionApiController extends Controller
                                 'data' => array('message' => 'Enrollment has been expired'),  
                                 'status'    => 'failure'
                             ], 400);            
-        }else{
-
-            $enrollment = Enrollment::where('id', $request->enrollment_id)
-                            ->select('id', DB::raw("'{$now}' as date"), 'duration', 'total_marks', 'expiry_date')
-                            ->get(); 
+        }else{           
 
             return response()->json([   
                                 'data'    => $enrollment,                                
