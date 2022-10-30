@@ -42,7 +42,15 @@ class Document extends Model
         'status',
         'created_at',
         'updated_at'
-    ];   
+    ];  
+    
+    protected $casts = [ 
+        'id' => 'string',    
+        'status' => 'string',
+        'topic_id' => 'string',
+        'course_id' => 'string'
+    ];
+
 
     public function scopeCreatedAt(Builder $query, $date): Builder
     { 

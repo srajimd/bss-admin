@@ -49,6 +49,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 	Route::post('/hardcopy/request', [HardCopyRequestApiController::class, 'create']);
 
+	Route::post('/my/certificates', [OrderApiController::class, 'getMyCertificates']);
+
 }); 
 
 Route::post('/user/login', [UserApiController::class, 'login']);

@@ -9,6 +9,8 @@ use Spatie\Permission\Traits\HasRoles;
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class Enrollment extends Model
 {
@@ -53,6 +55,7 @@ class Enrollment extends Model
         'status' => 'string',
         'course_id' => 'string',
         'user_id' => 'string',
+        'enrollment_id' => 'string',
         'duration' => 'string',
         'certification' => 'string',
         'total_marks' => 'string'
@@ -75,5 +78,60 @@ class Enrollment extends Model
     {
         $now = Carbon::now();
         return $query->where('status', 1)->whereDate('expiry_date','>',$now);
+    }
+
+    /**
+    * Generate certifigate by embedding user's info.
+    *   
+    */
+
+    public function generateCertificate($userdata){
+        //print_r($userdata); exit;
+        $certificate_template_file = Storage::disk('local')->path('bss/certificate.png');
+        $font_path = Storage::disk('local')->path('bss/font.ttf');
+
+
+        // Create Image From Existing File
+        $png_image = imagecreatefrompng($certificate_template_file);
+        //$png_image=imagecreatetruecolor(100,100);
+        
+        // Allocate A Color For The Text
+        $black = imagecolorallocate($png_image, 25, 11, 51);        
+            
+        // Set Text to Be Printed On Image
+        $regNo = 'TN'.str_pad($userdata->user_id,5,"0",STR_PAD_LEFT);
+        $today = date('d-m-Y');        
+        $currentYear = date("Y");
+        $grade = "First Class";
+        $desc = "BHARAT SEVAK SAMAJ";
+        $user_name = 'Mr/Mrs/Miss. ' . ucwords($userdata->user_name);
+
+        imagettftext($png_image, 20, 0, 230, 75, $black, $font_path, $regNo);
+        imagettftext($png_image, 20, 0, 620, 75, $black, $font_path, $today);    
+        imagettftext($png_image, 20, 0, 250, 545, $black, $font_path, $user_name);
+        imagettftext($png_image, 20, 0, 45, 635, $black, $font_path, $userdata->course_name);
+        imagettftext($png_image, 20, 0, 500, 685, $black, $font_path, $currentYear);
+        imagettftext($png_image, 20, 0, 45, 725, $black, $font_path, $desc);
+        imagettftext($png_image, 20, 0, 45, 775, $black, $font_path, '');
+        imagettftext($png_image, 20, 0, 250, 822, $black, $font_path, $grade);
+        imagettftext($png_image, 20, 0, 90, 870, $black, $font_path, $grade);
+        imagettftext($png_image, 20, 0, 45, 915, $black, $font_path, $grade);
+    
+        // Send Image to Browser 
+        $certificate_file_name = $userdata->course_id.'-'.date('mdYHis').'-'.uniqid().'.png';
+        $file_path = 'bss/certificates/'.$userdata->user_id;
+        $certifcate_path = Storage::disk('local')->path($file_path);
+        File::isDirectory($certifcate_path) or File::makeDirectory($certifcate_path, 0755, true, true);
+        $file_name = $userdata->course_id.'-'.date('mdYHis').'-'.uniqid().'.png';
+        $certificate_file = $certifcate_path . '/' . $file_name;
+        imagepng($png_image, $certificate_file);
+
+        //header('Content-type: image/png'); 
+        //imagepng($png_image);
+    
+        // Clear Memory
+        imagedestroy($png_image);
+
+        return $file_path.'/'.$file_name;        
     }
 }

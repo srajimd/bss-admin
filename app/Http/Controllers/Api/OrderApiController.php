@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class OrderApiController extends Controller
 {
@@ -158,5 +160,61 @@ class OrderApiController extends Controller
                             ], 200); 
                   
     } 
+
+    public function getMyCertificates(Request $request)
+    {        
+        $id = auth()->user()->id; 
+
+        $now = Carbon::now();
+        
+        //DB::enableQueryLog(); 
+
+        $users_data = Enrollment::join('users', 'users.id', '=', 'enrollments.user_id')
+        ->join('courses', 'courses.id', '=', 'enrollments.user_id')
+        ->select('courses.id as course_id', 'courses.name as course_name', 'users.name as user_name', 'users.id as user_id', 'enrollments.id as enrollment_id', 'enrollments.certificate_path')
+        ->where('enrollments.status', 1)
+        ->whereDate('expiry_date','<',$now)
+        ->get();
+           
+
+        //dd(DB::getQueryLog());        
+        $user_data = [];
+        foreach($users_data as $ukey => $userdata){
+             $user_data[$ukey] = [
+                'user_id' => $userdata->user_id,
+                'user_name' => $userdata->user_name,
+                'course_id' => $userdata->course_id, 
+                'course_name' => $userdata->course_name,
+                'enrollment_id' => $userdata->enrollment_id
+            ]; 
+            
+            if(empty($userdata->certificate_path) && !File::exists($userdata->certificate_path)) {
+                $certificate_file = Enrollment::generateCertificate($userdata);
+                DB::table('enrollments')
+                    ->where('id', $userdata->enrollment_id)
+                    ->update([
+                        'certificate_path' => $certificate_file
+                    ]);                
+            }else{
+                $certificate_file = $userdata->certificate_path;
+            } 
+            
+            $user_data[$ukey]['certificate_url'] = str_replace('public/','',url('/').Storage::url('app/'.$certificate_file));           
+        } 
+        if(!empty($user_data)){
+            return response()->json([   
+                'data'    => $user_data,                                
+                'status'  => 'success'
+            ], 200); 
+        }else{
+            return response()->json([   
+                'data'    => [
+                    'message'=>'No certificate found'
+                ],                                
+                'status'  => 'failure'
+            ], 400); 
+        }
+            
+    }
      
 }
