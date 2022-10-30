@@ -55,6 +55,7 @@ class Enrollment extends Model
         'status' => 'string',
         'course_id' => 'string',
         'user_id' => 'string',
+        'topic_id' => 'string',
         'enrollment_id' => 'string',
         'duration' => 'string',
         'certification' => 'string',
@@ -102,7 +103,7 @@ class Enrollment extends Model
         $regNo = 'TN'.str_pad($userdata->user_id,5,"0",STR_PAD_LEFT);
         $today = date('d-m-Y');        
         $currentYear = date("Y");
-        $grade = "First Class";
+        $grade = $userdata->grade;
         $desc = "BHARAT SEVAK SAMAJ";
         $user_name = 'Mr/Mrs/Miss. ' . ucwords($userdata->user_name);
 
@@ -133,5 +134,23 @@ class Enrollment extends Model
         imagedestroy($png_image);
 
         return $file_path.'/'.$file_name;        
+    }
+
+    public function getGrade($score){
+        $result = '';
+        switch($score){
+            case $score < 8:
+                $result = 'FAIL';
+                break;
+            case $score >= 10 && $score < 15:
+                $result = 'SECOND CLASS';
+                break;
+            case $score >= 15 && $score <= 20:
+                $result = 'FIRST CLASS';
+            break;
+            default:
+                $result = 'THIRD CLASS';
+        }
+        return $result;
     }
 }

@@ -167,11 +167,11 @@ class OrderApiController extends Controller
 
         $now = Carbon::now();
         
-        //DB::enableQueryLog(); 
-
+        //DB::enableQueryLog();
         $users_data = Enrollment::join('users', 'users.id', '=', 'enrollments.user_id')
         ->join('courses', 'courses.id', '=', 'enrollments.user_id')
-        ->select('courses.id as course_id', 'courses.name as course_name', 'users.name as user_name', 'users.id as user_id', 'enrollments.id as enrollment_id', 'enrollments.certificate_path')
+        ->join('topics', 'topics.id', '=', 'courses.topic_id')
+        ->select('courses.id as course_id', 'courses.name as course_name', 'users.name as user_name', 'users.id as user_id', 'enrollments.id as enrollment_id', 'enrollments.certificate_path', 'topics.id as topic_id', 'topics.name as topic_name')
         ->where('enrollments.status', 1)
         ->whereDate('expiry_date','<',$now)
         ->get();
@@ -180,12 +180,27 @@ class OrderApiController extends Controller
         //dd(DB::getQueryLog());        
         $user_data = [];
         foreach($users_data as $ukey => $userdata){
-             $user_data[$ukey] = [
+
+            $question_attempt_count = DB::table('question_user')
+                ->join("answers",function($join){
+                    $join->on('answers.question_id','=', 'question_user.question_id')
+                        ->on('answers.id','=', 'question_user.answer_id');
+                })
+                ->where('question_user.enrollment_id',$userdata->enrollment_id)
+                ->where('answers.status',1)
+                ->where('answers.correct_answer',1)
+                ->count(); 
+
+            if($question_attempt_count<8) continue;
+
+            $user_data[$ukey] = [
                 'user_id' => $userdata->user_id,
                 'user_name' => $userdata->user_name,
                 'course_id' => $userdata->course_id, 
                 'course_name' => $userdata->course_name,
-                'enrollment_id' => $userdata->enrollment_id
+                'enrollment_id' => $userdata->enrollment_id,
+                'topic_id' => $userdata->topic_id,
+                'topic_name' => $userdata->topic_name
             ]; 
             
             if(empty($userdata->certificate_path) && !File::exists($userdata->certificate_path)) {
@@ -199,7 +214,8 @@ class OrderApiController extends Controller
                 $certificate_file = $userdata->certificate_path;
             } 
             
-            $user_data[$ukey]['certificate_url'] = str_replace('public/','',url('/').Storage::url('app/'.$certificate_file));           
+            $user_data[$ukey]['certificate_url'] = str_replace('public/','',url('/').Storage::url('app/'.$certificate_file));
+            $user_data[$ukey]['grade'] = Enrollment::getGrade($question_attempt_count);          
         } 
         if(!empty($user_data)){
             return response()->json([   
