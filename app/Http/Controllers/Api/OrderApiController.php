@@ -191,20 +191,27 @@ class OrderApiController extends Controller
                 ->where('answers.correct_answer',1)
                 ->count(); 
 
-            if($question_attempt_count<8) continue;
+            //if($question_attempt_count<8) continue;
 
-            $user_data[$ukey] = [
+            $grade = Enrollment::getGrade($question_attempt_count);
+
+            //$grade = 'FIRST CLASS';
+
+            $enroll_data = [
                 'user_id' => $userdata->user_id,
                 'user_name' => $userdata->user_name,
                 'course_id' => $userdata->course_id, 
                 'course_name' => $userdata->course_name,
                 'enrollment_id' => $userdata->enrollment_id,
                 'topic_id' => $userdata->topic_id,
-                'topic_name' => $userdata->topic_name
-            ]; 
+                'topic_name' => $userdata->topic_name,
+                'grade' => $grade
+            ];
+            
+            $user_data[$ukey] = $enroll_data;
             
             if(empty($userdata->certificate_path) && !File::exists($userdata->certificate_path)) {
-                $certificate_file = Enrollment::generateCertificate($userdata);
+                $certificate_file = Enrollment::generateCertificate((Object) $enroll_data);
                 DB::table('enrollments')
                     ->where('id', $userdata->enrollment_id)
                     ->update([
@@ -214,12 +221,11 @@ class OrderApiController extends Controller
                 $certificate_file = $userdata->certificate_path;
             } 
             
-            $user_data[$ukey]['certificate_url'] = str_replace('public/','',url('/').Storage::url('app/'.$certificate_file));
-            $user_data[$ukey]['grade'] = Enrollment::getGrade($question_attempt_count);          
+            $user_data[$ukey]['certificate_url'] = str_replace('public/','',url('/').Storage::url('app/'.$certificate_file));         
         } 
         if(!empty($user_data)){
             return response()->json([   
-                'data'    => $user_data,                                
+                'data'    => array_values($user_data),                                
                 'status'  => 'success'
             ], 200); 
         }else{

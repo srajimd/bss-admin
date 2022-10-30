@@ -39,7 +39,14 @@ class Answer extends Model
         'status',
         'created_at',
         'updated_at'
-    ];   
+    ]; 
+    
+    protected $casts = [ 
+        'id' => 'string',    
+        'status' => 'string',
+        'question_id' => 'string',
+        'correct_answer' => 'string'
+    ];
 
     public function scopeCreatedAt(Builder $query, $date): Builder
 	{ 

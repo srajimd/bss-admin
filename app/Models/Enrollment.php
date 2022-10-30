@@ -104,7 +104,7 @@ class Enrollment extends Model
         $today = date('d-m-Y');        
         $currentYear = date("Y");
         $grade = $userdata->grade;
-        $desc = "BHARAT SEVAK SAMAJ";
+        $topic_name = $userdata->topic_name;
         $user_name = 'Mr/Mrs/Miss. ' . ucwords($userdata->user_name);
 
         imagettftext($png_image, 20, 0, 230, 75, $black, $font_path, $regNo);
@@ -112,7 +112,7 @@ class Enrollment extends Model
         imagettftext($png_image, 20, 0, 250, 545, $black, $font_path, $user_name);
         imagettftext($png_image, 20, 0, 45, 635, $black, $font_path, $userdata->course_name);
         imagettftext($png_image, 20, 0, 500, 685, $black, $font_path, $currentYear);
-        imagettftext($png_image, 20, 0, 45, 725, $black, $font_path, $desc);
+        imagettftext($png_image, 20, 0, 45, 725, $black, $font_path, $topic_name);
         imagettftext($png_image, 20, 0, 45, 775, $black, $font_path, '');
         imagettftext($png_image, 20, 0, 250, 822, $black, $font_path, $grade);
         imagettftext($png_image, 20, 0, 90, 870, $black, $font_path, $grade);
