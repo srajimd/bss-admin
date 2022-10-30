@@ -13,7 +13,8 @@ use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\DocumentApiController;
 use App\Http\Controllers\Api\VideoApiController;
 use App\Http\Controllers\Api\QuestionApiController;
-
+use App\Http\Controllers\Api\ReceiptApiController;
+use App\Http\Controllers\Api\HardCopyRequestApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,10 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/get/questions', [QuestionApiController::class, 'index']);
 	Route::post('/post/questions', [QuestionApiController::class, 'create']);
 	Route::get('/get/exam', [QuestionApiController::class, 'exam']);
+
+	Route::post('/post/receipt', [ReceiptApiController::class, 'create']);
+
+	Route::post('/hardcopy/request', [HardCopyRequestApiController::class, 'create']);
 
 }); 
 

@@ -10,7 +10,7 @@ use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
-class Syllabus extends Model
+class HardCopyRequest extends Model
 {
     use HasFactory, HasRoles, Sortable;
 
@@ -21,10 +21,15 @@ class Syllabus extends Model
     */
 
     protected $fillable = [
-        'topic_id',
+        'user_id',
         'course_id',
-        'name',        
-        'status'
+        'certificate_id',
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'zipcode',
+        'mobile'
     ];
 
     /**
@@ -35,61 +40,41 @@ class Syllabus extends Model
 
     public $sortable = [
         'id',
-        'name',        
-        'status',
+        'user_id',
+        'course_id',
         'created_at',
-        'updated_at',        
-    ];  
-    
+        'updated_at'
+    ];   
+
     protected $casts = [ 
-        'id' => 'string',    
-        'status' => 'string',
-        'course_id' => 'string'
+        'id' => 'string', 
+        'course_id' => 'string',
+        'user_id' => 'string',
+        'certificate_id' => 'string'
     ];
 
     public function scopeCreatedAt(Builder $query, $date): Builder
-	{ 
-	    return $query->whereDate('syllabi.created_at', '=', Carbon::parse($date));
-	}
+    { 
+        return $query->whereDate('HardCopyRequest.created_at', '=', Carbon::parse($date));
+    }
 
     public function scopeCourseId(Builder $query, $course_id): Builder
     { 
         return $query->where('course_id', '=', $course_id);
-    }
-
-    /**
-    * Get the topic that owns the syllabus.
-    */
-
-    public function topic()
-    {
-        return $this->belongsTo(Topic::class);
     }  
+
+    public function scopeCertificateId(Builder $query, $certificate_id): Builder
+    { 
+        return $query->where('certificate_id', '=', $certificate_id);
+    }   
 
     /**
     * Get the course that owns the syllabus.
     */
-
+    
     public function course()
     {
         return $this->belongsTo(Course::class);
     }   
 
-    /**
-    * Get the units for the syllabus.
-    
-    */
-    public function units()
-    {
-        return $this->hasMany(Unit::class);
-    }
-
-    /**
-    * Get the units for the syllabus.
-    */
-    
-    public function lessons()
-    {
-        return $this->hasMany(Lesson::class);
-    } 
 }

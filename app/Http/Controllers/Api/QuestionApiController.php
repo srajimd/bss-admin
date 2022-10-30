@@ -221,14 +221,14 @@ class QuestionApiController extends Controller
         $now = Carbon::now();
         $enrollment = Enrollment::where('course_id', $request->course_id)
                             ->where('status', 1)
-                            ->whereDate('expiry_date','>',$now)
+                            ->where('expiry_date','>',$now)
                             ->select('id as enrollment_id', DB::raw("'{$now}' as date"), 'duration', 'total_marks', 'expiry_date')
                             ->get();
 
-        //dd(DB::getQueryLog()); 
-        if(!$enrollment){
+        //dd(DB::getQueryLog());
+        if(!$enrollment->count()){
             return response()->json([                                
-                                'data' => array('message' => 'Enrollment has been expired'),  
+                                'data' => array('message' => 'Exam has been expired'),  
                                 'status'    => 'failure'
                             ], 400);            
         }else{           

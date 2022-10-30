@@ -50,6 +50,14 @@ class Course extends Model
         'updated_at'
     ];
 
+    protected $casts = [ 
+        'id' => 'string',    
+        'status' => 'string',
+        'topic_id' => 'string',
+        'duration' => 'string',
+        'certification' => 'string'
+    ];
+
     /**
      * The accessors to append to the model's array form.
      *

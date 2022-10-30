@@ -46,7 +46,18 @@ class Enrollment extends Model
         'status',
         'created_at',
         'updated_at'
-    ];   
+    ]; 
+    
+    protected $casts = [ 
+        'id' => 'string',    
+        'status' => 'string',
+        'course_id' => 'string',
+        'user_id' => 'string',
+        'duration' => 'string',
+        'certification' => 'string',
+        'total_marks' => 'string'
+    ];
+
 
     public function scopeCreatedAt(Builder $query, $date): Builder
     { 

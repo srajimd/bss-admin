@@ -41,6 +41,11 @@ class Topic extends Model
         'updated_at'
     ];
 
+    protected $casts = [ 
+        'id' => 'string',    
+        'status' => 'string'
+    ];
+
     public function scopeCreatedAt(Builder $query, $date): Builder
 	{ 
 	    return $query->whereDate('created_at', '=', Carbon::parse($date));

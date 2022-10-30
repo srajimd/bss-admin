@@ -10,7 +10,7 @@ use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
-class Unit extends Model
+class Receipt extends Model
 {
     use HasFactory, HasRoles, Sortable;
 
@@ -21,9 +21,9 @@ class Unit extends Model
     */
 
     protected $fillable = [
-        'syllabus_id',
-        'name',        
-        'status'
+        'user_id',
+        'course_id',
+        'file_path'
     ];
 
     /**
@@ -34,33 +34,35 @@ class Unit extends Model
 
     public $sortable = [
         'id',
-        'name',        
-        'status',
+        'user_id',
+        'course_id',
         'created_at',
         'updated_at'
-    ]; 
-    
+    ];   
+
     protected $casts = [ 
-        'id' => 'string'
+        'id' => 'string', 
+        'course_id' => 'string',
+        'user_id' => 'string'
     ];
 
     public function scopeCreatedAt(Builder $query, $date): Builder
-	{ 
-	    return $query->whereDate('created_at', '=', Carbon::parse($date));
-	}
-
-    public function scopeSyllabusId(Builder $query, $syllabus_id): Builder
     { 
-        return $query->where('syllabus_id', '=', $syllabus_id);
+        return $query->whereDate('receipts.created_at', '=', Carbon::parse($date));
     }
+
+    public function scopeCourseId(Builder $query, $course_id): Builder
+    { 
+        return $query->where('course_id', '=', $course_id);
+    }    
 
     /**
-    * Get the syllabus that owns the unit.
+    * Get the course that owns the syllabus.
     */
     
-    public function syllabus()
+    public function course()
     {
-        return $this->belongsTo(Syllabus::class);
-    }
-        
+        return $this->belongsTo(Course::class);
+    }   
+
 }
