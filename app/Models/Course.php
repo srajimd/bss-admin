@@ -55,7 +55,8 @@ class Course extends Model
         'status' => 'string',
         'topic_id' => 'string',
         'duration' => 'string',
-        'certification' => 'string'
+        'certification' => 'string',
+        'is_subscribed' => 'string'
     ];
 
     /**
@@ -102,7 +103,7 @@ class Course extends Model
     public function setAmountAttribute($value)
     {
         $this->attributes['amount'] = (float)$value;
-    }
+    }    
 
     /**
     * Get the topic that owns the course.

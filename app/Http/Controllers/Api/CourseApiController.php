@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Course;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use DB;
 
 class CourseApiController extends Controller
 {
@@ -24,12 +25,14 @@ class CourseApiController extends Controller
         }
 
         $courses = QueryBuilder::for(Course::class)
-                        ->where('status','1')
+                        ->leftJoin('enrollments', 'enrollments.course_id', '=', 'courses.id')
+                        ->where('courses.status','1')
+                        ->select(DB::raw('courses.*,IF(enrollments.status=1, 1, 0) AS is_subscribed'))
                         ->allowedFilters([
                             'name',
-                            AllowedFilter::exact('status'),
-                            AllowedFilter::scope('created_at'),
-                            AllowedFilter::scope('topic_id'),
+                            AllowedFilter::exact('courses.status'),
+                            AllowedFilter::scope('courses.created_at'),
+                            AllowedFilter::scope('courses.topic_id'),
                         ])                        
                         ->sortable(['id' => 'desc'])
                         ->paginate($items_per_page);        
