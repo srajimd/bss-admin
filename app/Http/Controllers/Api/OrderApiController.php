@@ -29,11 +29,10 @@ class OrderApiController extends Controller
     {         
         $id = auth()->user()->id;         
 
-        $input = $request->only('course_id', 'transaction_id');
+        $input = $request->only('course_id');
 
 	    $validator = Validator::make($input, [        	
-            'course_id' => 'required', 
-            'transaction_id' => 'required',           
+            'course_id' => 'required'           
         ]);
 
         if ($validator->fails()) {
@@ -73,7 +72,6 @@ class OrderApiController extends Controller
             $enrollment = Enrollment::create([
                 'user_id'        => $id,
                 'course_id'      => $request->course_id,
-                'transaction_id' => $request->transaction_id,
                 'name'           => $course->name,
                 'duration'       => $course->duration,
                 'amount'         => $course->amount,
@@ -102,11 +100,28 @@ class OrderApiController extends Controller
 
     public function status(Request $request)
     {    
-        $id = auth()->user()->id;         
+        $id = auth()->user()->id;  
+        
+        $input = $request->only('enrollment_id','status');
+
+	    $validator = Validator::make($input, [        	
+            'enrollment_id' => 'required',
+            'status' => 'required'           
+        ]);
+
+        if ($validator->fails()) {
+
+            $errors = $validator->errors()->getMessages();
+
+            return response()->json([                                
+                                'data'      => $errors, 
+                                'status'    => 'failure'
+                            ], 400);
+        }
 
         if($request->has('enrollment_id')){
             $enroll_update_result = Enrollment::where('id', $request->enrollment_id)
-                        ->update(['status' => 1]);
+                        ->update(['status' => $request->status,'transaction_id' => $request->transaction_id]);
         } 
         
         if(!empty($enroll_update_result)){
