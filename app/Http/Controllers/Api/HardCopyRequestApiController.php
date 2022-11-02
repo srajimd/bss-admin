@@ -54,7 +54,7 @@ class HardCopyRequestApiController extends Controller
 
 	    $validator = Validator::make($input, [        	
             'course_id' => 'required',
-            'certificate_id' => 'required',
+            'enrollment_id' => 'required',
             'address1'        => 'required',  
             'address2'        => 'required',  
             'city'        => 'required',  
@@ -75,7 +75,7 @@ class HardCopyRequestApiController extends Controller
         $hardcopyrequest = HardCopyRequest::create([
             'user_id'        => $id,
             'course_id'      => $request->course_id,
-            'certificate_id' => $request->certificate_id,
+            'enrollment_id' => $request->enrollment_id,
             'address1'      => $request->address1,
             'address2'      => $request->address2,
             'city'      => $request->city,

@@ -23,7 +23,7 @@ class HardCopyRequest extends Model
     protected $fillable = [
         'user_id',
         'course_id',
-        'certificate_id',
+        'enrollment_id',
         'address1',
         'address2',
         'city',
@@ -50,7 +50,7 @@ class HardCopyRequest extends Model
         'id' => 'string', 
         'course_id' => 'string',
         'user_id' => 'string',
-        'certificate_id' => 'string'
+        'enrollment_id' => 'string'
     ];
 
     public function scopeCreatedAt(Builder $query, $date): Builder
