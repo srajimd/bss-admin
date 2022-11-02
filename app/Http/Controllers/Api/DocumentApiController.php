@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Document;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use DB;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentApiController extends Controller
 {
@@ -25,6 +27,7 @@ class DocumentApiController extends Controller
 
         $documents = QueryBuilder::for(Document::class)
                         ->where('status','1')
+                        ->select(DB::raw('documents.*,CONCAT("'.str_replace('public/','',url('/').Storage::url('app/')).'",documents.file_path) AS file_path'))
                         ->allowedFilters([
                             'name',
                             AllowedFilter::exact('status'),

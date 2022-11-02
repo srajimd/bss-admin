@@ -140,16 +140,16 @@ class Enrollment extends Model
         $result = '';
         switch($score){
             case $score < 8:
-                $result = 'FAIL';
+                $result = 'DEGRADE';
                 break;
-            case $score >= 10 && $score < 15:
-                $result = 'SECOND CLASS';
+            case $score >= 8 && $score <= 13:
+                $result = 'C GRADE';
                 break;
-            case $score >= 15 && $score <= 20:
-                $result = 'FIRST CLASS';
+            case $score > 13 && $score <= 16:
+                $result = 'B GRADE';
             break;
             default:
-                $result = 'THIRD CLASS';
+                $result = 'A GRADE';
         }
         return $result;
     }

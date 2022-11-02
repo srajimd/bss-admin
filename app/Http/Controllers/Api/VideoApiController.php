@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Video;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use DB;
+use Illuminate\Support\Facades\Storage;
 
 class VideoApiController extends Controller
 {
@@ -25,6 +27,7 @@ class VideoApiController extends Controller
 
         $videos = QueryBuilder::for(Video::class)
                         ->where('status','1')
+                        ->select(DB::raw('videos.*,CONCAT("'.str_replace('public/','',url('/').Storage::url('app/')).'",videos.file_path) AS file_path'))
                         ->allowedFilters([
                             'name',
                             AllowedFilter::exact('status'),

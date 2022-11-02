@@ -206,7 +206,7 @@ class OrderApiController extends Controller
                 ->where('answers.correct_answer',1)
                 ->count(); 
 
-            //if($question_attempt_count<8) continue;
+            if($question_attempt_count<8) continue;
 
             $grade = Enrollment::getGrade($question_attempt_count);
 
