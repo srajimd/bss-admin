@@ -25,7 +25,7 @@ class HardCopyRequest extends Model
         'course_id',
         'enrollment_id',
         'address1',
-        'address2',
+        'country',
         'city',
         'state',
         'zipcode',
