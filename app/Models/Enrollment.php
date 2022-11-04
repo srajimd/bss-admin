@@ -59,7 +59,8 @@ class Enrollment extends Model
         'enrollment_id' => 'string',
         'duration' => 'string',
         'certification' => 'string',
-        'total_marks' => 'string'
+        'total_marks' => 'string',
+        'is_completed' => 'string'
     ];
 
 

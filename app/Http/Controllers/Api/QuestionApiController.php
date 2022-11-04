@@ -221,7 +221,7 @@ class QuestionApiController extends Controller
         $now = Carbon::now();
         $enrollment = Enrollment::where('course_id', $request->course_id)
                             ->where('status', 1)
-                            ->where('expiry_date','>',$now)
+                            /*->where('expiry_date','>',$now)*/
                             ->where('user_id', '=', $id)
                             ->select('id as enrollment_id', DB::raw("'{$now}' as date"), 'duration', 'total_marks', 'expiry_date')
                             ->get();
@@ -229,13 +229,38 @@ class QuestionApiController extends Controller
         //dd(DB::getQueryLog());
         if(!$enrollment->count()){
             return response()->json([                                
-                                'data' => array('message' => 'Exam has been expired'),  
+                                'data' => array('message' => 'No exam has not been enrolled for this course'),  
                                 'status'    => 'failure'
                             ], 400);            
-        }else{           
+        }else{  
+            $is_completed=0; 
+            $exam_details = [];           
+            foreach($enrollment as $ekey => $enroll){
+                if($enroll->expiry_date < $now){
+                    return response()->json([                                
+                        'data' => array('message' => 'Exam has been expired'),  
+                        'status'    => 'failure'
+                    ], 400); 
+                }
+                //DB::enableQueryLog();
+                $results = DB::table('question_user')           
+                        ->where('user_id', $id)             
+                        ->where('course_id', $request->course_id) 
+                        ->where('enrollment_id', $enroll->enrollment_id)
+                        ->get();
+                //dd(DB::getQueryLog());      
+                //echo $id, '___', $request->course_id, '___', $enroll->enrollment_id;
+                //echo count($results); exit;    
+                if(count($results)>0){
+                    $is_completed=1;
+                }
 
+                $exam_details[$ekey] = $enroll;
+                $exam_details[$ekey]->is_completed = $is_completed;
+            }
+            
             return response()->json([   
-                                'data'    => $enrollment,                                
+                                'data'    => $exam_details,                                
                                 'status'  => 'success'
                             ], 200); 
         }	       
