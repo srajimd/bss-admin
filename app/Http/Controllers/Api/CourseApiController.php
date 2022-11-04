@@ -10,7 +10,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use DB;
 
 class CourseApiController extends Controller
-{
+{    
     /**
      * Display a listing of the resource.
      *
@@ -18,6 +18,10 @@ class CourseApiController extends Controller
      */
     public function index(Request $request)
     {
+        $user_id=0;
+        
+        if(!empty(auth()->user()->id)) $user_id = auth()->user()->id;    
+
         if($request->has('items_per_page')){
             $items_per_page = (int)$request->input('items_per_page');
         }else{
@@ -25,7 +29,11 @@ class CourseApiController extends Controller
         }
 
         $courses = QueryBuilder::for(Course::class)
-                        ->leftJoin('enrollments', 'enrollments.course_id', '=', 'courses.id')
+                        ->leftJoin("enrollments",function($join){
+                            global $user_id;
+                            $join->on("enrollments.course_id","=","courses.id")
+                                ->where("enrollments.user_id","=",$user_id);
+                        })
                         ->where('courses.status','1')
                         ->select(DB::raw('courses.*,IF(enrollments.status=1, 1, 0) AS is_subscribed'))
                         ->allowedFilters([
