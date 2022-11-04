@@ -62,6 +62,7 @@ Route::get('/get/topics', [TopicApiController::class, 'index']);
 Route::get('/get/topic/{id}', [TopicApiController::class, 'show']);
 
 Route::get('/get/courses', [CourseApiController::class, 'index']);
+Route::get('/get/courses/user_id/{user_id}', [CourseApiController::class, 'index']);
 Route::get('/get/course/{id}', [CourseApiController::class, 'show']);
 
 Route::get('/get/syllabuses', [SyllabusApiController::class, 'index']);

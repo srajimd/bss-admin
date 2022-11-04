@@ -222,6 +222,7 @@ class QuestionApiController extends Controller
         $enrollment = Enrollment::where('course_id', $request->course_id)
                             ->where('status', 1)
                             ->where('expiry_date','>',$now)
+                            ->where('user_id', '=', $id)
                             ->select('id as enrollment_id', DB::raw("'{$now}' as date"), 'duration', 'total_marks', 'expiry_date')
                             ->get();
 

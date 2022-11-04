@@ -8,6 +8,7 @@ use App\Models\Course;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use DB;
+use Illuminate\Support\Arr;
 
 class CourseApiController extends Controller
 {    
@@ -18,9 +19,13 @@ class CourseApiController extends Controller
      */
     public function index(Request $request)
     {
-        $user_id=0;
-        
-        if(!empty(auth()->user()->id)) $user_id = auth()->user()->id;    
+        $user_id='';
+       
+        if($request->has('user_id')) 
+        {  
+            $input = (object) $request->all();
+            $user_id = (int)$request->input('user_id');
+        }
 
         if($request->has('items_per_page')){
             $items_per_page = (int)$request->input('items_per_page');
@@ -29,8 +34,7 @@ class CourseApiController extends Controller
         }
 
         $courses = QueryBuilder::for(Course::class)
-                        ->leftJoin("enrollments",function($join){
-                            global $user_id;
+                        ->leftJoin("enrollments",function($join) use($user_id){                           
                             $join->on("enrollments.course_id","=","courses.id")
                                 ->where("enrollments.user_id","=",$user_id);
                         })
