@@ -86,11 +86,11 @@
                                         <th>@sortablelink('name', 'Course')</th>
                                         <!--th>@sortablelink('name', 'email')</th-->
                                         <!--th>@sortablelink('duration', 'Duration (days)')</th-->
-                                        <th>Amount & Status</th> 
+                                        <th width="15%">Amount & Status</th> 
                                         <th>@sortablelink('created_at', 'Enrollment Date')</th>
-                                        <th>@sortablelink('expiry_date', 'Expiry Date')</th>
+                                        <th width="10%">@sortablelink('expiry_date', 'Expiry Date')</th>
                                         <th>Hard Copy Request</th>  
-                                        <th>Action</th>                                       
+                                        <th width="10%">Action</th>                                       
                                     </tr>
                                 </thead>
                                 <tbody> 
@@ -125,21 +125,23 @@
                                     <td>{{ date('d-m-Y', strtotime($enrollment->created_at)) }}</td>
                                     <td>{{ date('d-m-Y', strtotime($enrollment->expiry_date)) }}</td>
                                     <td class="text-center">
+                                    @if($enrollment->is_hardcopy_requested == 'Y')
                                         @php
                                         $params = array('enrollment_id' => $enrollment->id);
                                         @endphp
-                                        <a href="{{ route('showaddress', $params) }}" alt="View Address" title="View Address">
+                                        <a href="{{ route('showaddress', $params) }}" data-toggle="tooltip" data-placement="top" alt="View Address" title="View Address">
                                         <i class="fa fa-address-book" aria-hidden="true" style="color: #1d9d74;font-size: larger;"></i> 
                                         </a>
+                                    @endif
                                     </td>
                                     <td class="text-center action-buttons">
                                     @if($enrollment->receipt)
-                                        <a href="javascript:;" data-url="{{ str_replace('public/','',url('/').Storage::url('app/'.$enrollment->receipt)) }}" alt="View Receipt" title="View Receipt" class="viewfile" data-name="{{ $enrollment->customer }}">
+                                        <a href="javascript:;" data-url="{{ str_replace('public/','',url('/').Storage::url('app/'.$enrollment->receipt)) }}" data-toggle="tooltip" data-placement="top" alt="View Receipt" title="View Receipt" class="viewfile" data-name="{{ $enrollment->customer }}">
                                         <i class="fas fa-file" aria-hidden="true" style="color: #1d9d74;font-size: larger;"></i> 
                                         </a>
                                     @endif 
                                     @if($enrollment->certificate)  
-                                        <a href="javascript:;" data-url="{{ str_replace('public/','',url('/').Storage::url('app/'.$enrollment->certificate)) }}" alt="View Certificate" title="View Certificate" class="viewfile" data-name="{{ $enrollment->customer }}"><i class="fas fa-certificate ml-2" aria-hidden="true" style="color: #007bff;font-size: larger;"></i></a>
+                                        <a href="javascript:;" data-url="{{ str_replace('public/','',url('/').Storage::url('app/'.$enrollment->certificate)) }}" data-toggle="tooltip" data-placement="top" alt="View Certificate" title="View Certificate" class="viewfile" data-name="{{ $enrollment->customer }}"><i class="fas fa-certificate ml-2" aria-hidden="true" style="color: #007bff;font-size: larger;"></i></a>
                                     @endif 
 
                                     @php
@@ -151,8 +153,8 @@
                                             $disapprovedisp = ''; 
                                         endif;
                                     @endphp
-                                    <a href="javascript:;" class="updatestatus approveicon {{ $approvedisp }}" _data-toggle="tooltip" data-placement="top" alt="Approve" title="Approve" data-status=1 data-eid={{ $enrollment->id }}><i class="fa fa-thumbs-up ml-2" aria-hidden="true" style="color: #007bff;font-size: larger;"></i></a>
-                                    <a href="javascript:;" class="updatestatus disapproveicon {{ $disapprovedisp }}" _data-toggle="tooltip" data-placement="top" alt="Disapprove" title="Disapprove" data-status=0 data-eid={{ $enrollment->id }}><i class="fa fa-thumbs-down ml-2" aria-hidden="true" style="color: #ff0000;font-size: larger;"></i></a>
+                                    <a href="javascript:;" class="updatestatus approveicon {{ $approvedisp }}" data-toggle="tooltip" data-placement="top" alt="Approve" title="Approve" data-status=1 data-eid={{ $enrollment->id }}><i class="fa fa-thumbs-up ml-2" aria-hidden="true" style="color: #007bff;font-size: larger;"></i></a>
+                                    <a href="javascript:;" class="updatestatus disapproveicon {{ $disapprovedisp }}" data-toggle="tooltip" data-placement="top" alt="Disapprove" title="Disapprove" data-status=0 data-eid={{ $enrollment->id }}><i class="fa fa-thumbs-down ml-2" aria-hidden="true" style="color: #ff0000;font-size: larger;"></i></a>
                                     </td>
                                     </tr>
                                     @endforeach
@@ -261,14 +263,14 @@
                         if(response.status == 'success'){
                             thisObj.parents('.action-buttons').find('.approveicon').addClass('hide');
                             thisObj.parents('.action-buttons').find('.disapproveicon').addClass('hide');
-                            thisObj.parents('tbody').find('.paid_badge').addClass('hide');
-                            thisObj.parents('tbody').find('.pending_badge').addClass('hide');
+                            thisObj.parents('tr').find('.paid_badge').addClass('hide');
+                            thisObj.parents('tr').find('.pending_badge').addClass('hide');
                             if(status==1){                    
                                 thisObj.parents('.action-buttons').find('.disapproveicon').removeClass('hide');
-                                thisObj.parents('tbody').find('.paid_badge').removeClass('hide');
+                                thisObj.parents('tr').find('.paid_badge').removeClass('hide');
                             }else{                                
                                 thisObj.parents('.action-buttons').find('.approveicon').removeClass('hide');  
-                                thisObj.parents('tbody').find('.pending_badge').removeClass('hide');                              
+                                thisObj.parents('tr').find('.pending_badge').removeClass('hide');                              
                             }
                         }
                     });

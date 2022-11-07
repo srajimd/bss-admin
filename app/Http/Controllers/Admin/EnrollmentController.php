@@ -50,7 +50,20 @@ class EnrollmentController extends Controller
                                 ])
                                 ->select('users.name as customer','users.email', 'enrollments.id','enrollments.name', 'enrollments.status', 'enrollments.expiry_date', 'enrollments.duration', 'enrollments.status', 'enrollments.amount', 'enrollments.created_at', 'enrollments.certificate_path as certificate', 'receipts.file_path as receipt', 'enrollments.total_marks','enrollments.transaction_id') 
                                 ->sortable(['id' => 'desc'])
-                                ->paginate(20);    
+                                ->paginate(20);  
+                                
+        foreach($data['enrollments'] as $ekey => $enrollments){
+
+            $hardcopyrequest_count = HardCopyRequest::join('users','users.id', '=', 'hard_copy_requests.user_id')
+                        ->where("hard_copy_requests.enrollment_id", $enrollments->id)
+                        ->select('users.name as customer','users.email','hard_copy_requests.id','hard_copy_requests.address1','hard_copy_requests.city','hard_copy_requests.state','hard_copy_requests.zipcode','hard_copy_requests.country','hard_copy_requests.mobile','hard_copy_requests.created_at')
+                        ->orderBy('hard_copy_requests.id', 'desc')                        
+                        ->count();           
+            
+            $enrollments->is_hardcopy_requested = ($hardcopyrequest_count > 0) ? 'Y':'N';
+
+            $data['enrollments'][$ekey] = $enrollments;
+        }
                          
         $data['i'] = ($request->input('page', 1) - 1) * 20;
 
@@ -62,11 +75,14 @@ class EnrollmentController extends Controller
     } 
 
     public function showAddress(Request $request){
+        //DB::enableQueryLog();
         $hardcopyrequest = HardCopyRequest::join('users','users.id', '=', 'hard_copy_requests.user_id')
                         ->where("hard_copy_requests.enrollment_id", $request->input('enrollment_id'))
                         ->select('users.name as customer','users.email','hard_copy_requests.id','hard_copy_requests.address1','hard_copy_requests.city','hard_copy_requests.state','hard_copy_requests.zipcode','hard_copy_requests.country','hard_copy_requests.mobile','hard_copy_requests.created_at')
                         ->orderBy('hard_copy_requests.id', 'desc')                        
                         ->first();
+        //dd(DB::getQueryLog());   
+        //echo '<pre>'; print_r($hardcopyrequest); echo '</pre>'; exit;
         return view('admin.hardcopyrequest.show', compact('hardcopyrequest'));
     }
 
