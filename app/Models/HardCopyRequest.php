@@ -75,6 +75,11 @@ class HardCopyRequest extends Model
     public function course()
     {
         return $this->belongsTo(Course::class);
-    }   
+    } 
+    
+    public function enrollment()
+    {
+        return $this->belongsTo(Enrollment::class);
+    } 
 
 }

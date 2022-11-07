@@ -69,12 +69,23 @@ class ReceiptApiController extends Controller
         }        
         
         $file_path =  $this->createImage($input['receipt']);
+        if(empty($request->enrollment_id)) $request->enrollment_id=0;        
 
-        $receipt = Receipt::create([
-            'user_id'        => $id,
-            'course_id'      => $request->course_id,
-            'file_path'      => $file_path              
-        ]);
+        $isEnrollExist = Receipt::CheckEnrollmentExist($id, $request->enrollment_id, $request->course_id);
+
+    
+        if($isEnrollExist->count()){
+            $receipt = Receipt::where('enrollment_id', $request->enrollment_id)
+                        ->update(['file_path' => $file_path]);
+
+        }else{
+            $receipt = Receipt::create([
+                'user_id'        => $id,
+                'course_id'      => $request->course_id,
+                'enrollment_id'  => $request->enrollment_id,
+                'file_path'      => $file_path              
+            ]);
+        }
 
         return response()->json([   
             'data' =>array('message' => 'Receipt has been uploaded successfully'),                               

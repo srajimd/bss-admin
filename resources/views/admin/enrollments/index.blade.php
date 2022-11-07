@@ -2,6 +2,24 @@
 
 @section('title', 'Admin | Enrollments Management')
 
+<style type="text/css">
+.tooltip-inner {
+  background-color: #28a745 !important;
+  box-shadow: 0px 0px 4px black;
+}
+
+.tooltip.bs-tooltip-top .arrow:before {
+ border-top-color:  #28a745 !important;
+}
+.modal-content img{
+    max-width:100%;
+}
+.hide{
+    display:none !important;
+}
+
+</style>
+
 @section('content_header')
     <div class="row justify-content-between">
         <div class="col-4">
@@ -65,14 +83,14 @@
                                     <tr>                                        
                                         <th>No</th>
                                         <th>@sortablelink('student', 'Student')</th>
-                                        <th>@sortablelink('name', 'Name')</th>
-                                        <th>@sortablelink('name', 'email')</th>
-                                        <th>@sortablelink('duration', 'Duration')</th>
-                                        <th>@sortablelink('amount', 'Amount')</th>
-                                        <th>@sortablelink('status', 'Status')</th>
-                                        <th>@sortablelink('created_at', 'Date Added')</th>
-                                        <th>@sortablelink('created_at', 'Expiry Date')</th>
-                                        
+                                        <th>@sortablelink('name', 'Course')</th>
+                                        <!--th>@sortablelink('name', 'email')</th-->
+                                        <!--th>@sortablelink('duration', 'Duration (days)')</th-->
+                                        <th>Amount & Status</th> 
+                                        <th>@sortablelink('created_at', 'Enrollment Date')</th>
+                                        <th>@sortablelink('expiry_date', 'Expiry Date')</th>
+                                        <th>Hard Copy Request</th>  
+                                        <th>Action</th>                                       
                                     </tr>
                                 </thead>
                                 <tbody> 
@@ -80,20 +98,62 @@
                                     @foreach ($enrollments as $key => $enrollment)
                                     <tr>                                    
                                     <td>{{ ++$i }}</td>
-                                    <td>{{ $enrollment->customer }}</td>
-                                    <td>{{ $enrollment->name }}</td>
-                                    <td>{{ $enrollment->email }}</td>
-                                    <td>{{ $enrollment->duration }}</td>
-                                    <td>{{ $enrollment->amount }}</td>
                                     <td>
-                                    @if($enrollment->status)
-                                        <label class="badge badge-success">Success</label>
-                                    @else
-                                        <label class="badge badge-danger">Pending</label>
-                                    @endif                                                
-                                    </td>                                    
-                                    <td>{{ $enrollment->created_at }}</td>
-                                    <td>{{ $enrollment->expiry_date }}</td>
+                                        {{ $enrollment->customer }}
+                                        <p>{{ $enrollment->email }}</p>
+                                    </td>
+                                    <td>
+                                        {{ $enrollment->name }}
+                                        <p>Duration: {{ $enrollment->duration }} days</p>
+                                    </td>
+                                    <!--td>{{ $enrollment->email }}</td-->
+                                    <!--td>{{ $enrollment->duration }}</td-->
+                                    <td>{{ number_format($enrollment->amount, 2, '.','') }}
+                                        @php
+                                            if($enrollment->status):
+                                                $paiddisp = '';
+                                                $pendingdisp = 'hide';                                  
+                                            else:
+                                                $paiddisp = 'hide';
+                                                $pendingdisp = ''; 
+                                            endif;
+                                        @endphp
+                                        <label class="badge badge-success ml-4 paid_badge {{ $paiddisp }}" @if($enrollment->transaction_id) data-toggle="tooltip"   data-placement="top" title="Transaction ID: {{ $enrollment->transaction_id }}" @endif>Paid</label>
+                                        <label class="badge badge-danger ml-4 pending_badge {{ $pendingdisp }} ">Pending</label>
+                                    </td>
+                                                                                                            
+                                    <td>{{ date('d-m-Y', strtotime($enrollment->created_at)) }}</td>
+                                    <td>{{ date('d-m-Y', strtotime($enrollment->expiry_date)) }}</td>
+                                    <td class="text-center">
+                                        @php
+                                        $params = array('enrollment_id' => $enrollment->id);
+                                        @endphp
+                                        <a href="{{ route('showaddress', $params) }}" alt="View Address" title="View Address">
+                                        <i class="fa fa-address-book" aria-hidden="true" style="color: #1d9d74;font-size: larger;"></i> 
+                                        </a>
+                                    </td>
+                                    <td class="text-center action-buttons">
+                                    @if($enrollment->receipt)
+                                        <a href="javascript:;" data-url="{{ str_replace('public/','',url('/').Storage::url('app/'.$enrollment->receipt)) }}" alt="View Receipt" title="View Receipt" class="viewfile" data-name="{{ $enrollment->customer }}">
+                                        <i class="fas fa-file" aria-hidden="true" style="color: #1d9d74;font-size: larger;"></i> 
+                                        </a>
+                                    @endif 
+                                    @if($enrollment->certificate)  
+                                        <a href="javascript:;" data-url="{{ str_replace('public/','',url('/').Storage::url('app/'.$enrollment->certificate)) }}" alt="View Certificate" title="View Certificate" class="viewfile" data-name="{{ $enrollment->customer }}"><i class="fas fa-certificate ml-2" aria-hidden="true" style="color: #007bff;font-size: larger;"></i></a>
+                                    @endif 
+
+                                    @php
+                                        if($enrollment->status==0 && $enrollment->receipt):
+                                            $approvedisp = '';
+                                            $disapprovedisp = 'hide';                                  
+                                        else:
+                                            $approvedisp = 'hide';
+                                            $disapprovedisp = ''; 
+                                        endif;
+                                    @endphp
+                                    <a href="javascript:;" class="updatestatus approveicon {{ $approvedisp }}" _data-toggle="tooltip" data-placement="top" alt="Approve" title="Approve" data-status=1 data-eid={{ $enrollment->id }}><i class="fa fa-thumbs-up ml-2" aria-hidden="true" style="color: #007bff;font-size: larger;"></i></a>
+                                    <a href="javascript:;" class="updatestatus disapproveicon {{ $disapprovedisp }}" _data-toggle="tooltip" data-placement="top" alt="Disapprove" title="Disapprove" data-status=0 data-eid={{ $enrollment->id }}><i class="fa fa-thumbs-down ml-2" aria-hidden="true" style="color: #ff0000;font-size: larger;"></i></a>
+                                    </td>
                                     </tr>
                                     @endforeach
                                     @else
@@ -122,19 +182,109 @@
     </div>
 @stop
 
+@if( $enrollments->total() > 0 )
+<div class="modal fade" id="viewfile" aria-hidden="true" tabindex="-1" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#ccc;padding:0.2rem 1rem;">
+        <h5 class="modal-title"></h5>
+        <a href="javascript:;" class="btn-close mt-2" data-dismiss="modal"><i class="fa fa-window-close"></i></a>
+      </div>
+      <div class="modal-body">        
+      </div>
+      <!--div class="modal-footer">
+      </div-->
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="hardcopy" aria-hidden="true" tabindex="-1" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"></h5>
+        <a href="javascript:;" class="btn-close" data-dismiss="modal"><i class="fa fa-close"></i></a>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+
+@endif
+
 @section('css')    
-    <link rel="stylesheet" href="/vendor/dg-plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="{{url()->current()}}/../../vendor/dg-plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css">
 @stop
 
 @section('js')
-    <script src="/vendor/dg-plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+    <script src="{{url()->current()}}/../../vendor/dg-plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 
     <script type="text/javascript">
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+            $(document).on('click', '.viewfile', function(){
+                var title='';
+                var img='<img src="'+$(this).data('url')+'"/>';
+                if($(this).attr('title') == 'View Receipt'){
+                    title="Receipt";                    
+                }else{
+                    title="Certificate";
+                }
+                $('#viewfile').find('.modal-title').html(title + " of <strong>" + $(this).data("name") + "</strong>");
+                $('#viewfile').find('.modal-body').html(img);
+                $('#viewfile').modal();
+            });           
+
+            $('.modal').on('hidden.bs.modal', function (e) {
+                $(this).find('.modal-title').html('');
+                $(this).find('.modal-body').html('');
+            });
+
+            $(document).on('click', '.updatestatus', function(){
+                var thisObj = $(this);
+                var status = thisObj.data('status');
+                var enrollment_id = thisObj.data('eid');
+                if(confirm("Are you sure to " + ((status==1)?"approve":"disapprove") + " this enrollment?")){
+                    var jqxhr = $.ajax({
+                        url: "{{ route('post.updatestatus') }}",
+                        method: "POST",
+                        data: {'status':status, "enrollment_id":enrollment_id},
+                        dataType: "json",
+                        headers: {
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                        }
+                    });
+
+                    jqxhr.done(function (response) {
+                        if(response.status == 'success'){
+                            thisObj.parents('.action-buttons').find('.approveicon').addClass('hide');
+                            thisObj.parents('.action-buttons').find('.disapproveicon').addClass('hide');
+                            thisObj.parents('tbody').find('.paid_badge').addClass('hide');
+                            thisObj.parents('tbody').find('.pending_badge').addClass('hide');
+                            if(status==1){                    
+                                thisObj.parents('.action-buttons').find('.disapproveicon').removeClass('hide');
+                                thisObj.parents('tbody').find('.paid_badge').removeClass('hide');
+                            }else{                                
+                                thisObj.parents('.action-buttons').find('.approveicon').removeClass('hide');  
+                                thisObj.parents('tbody').find('.pending_badge').removeClass('hide');                              
+                            }
+                        }
+                    });
+
+                    jqxhr.fail(function (jqXHR, textStatus) {
+                        console.log("Request failed: " + textStatus);
+                    });
+                }
+            });
+
+        });
      //Date range picker
-    $('#start-date').datepicker({
+    /*$('#start-date').datepicker({
         format: "yyyy-mm-dd",
         autoclose: true
-    });
+    });*/
     </script>
 @stop
 

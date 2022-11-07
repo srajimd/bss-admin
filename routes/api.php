@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::patch('/profile/password/update', [ProfileApiController::class, 'password']);   
 	Route::get('/profile/logout', [ProfileApiController::class, 'logout']);
 
+	Route::get('/get/courseslist', [CourseApiController::class, 'coursesList']);
 	Route::post('/course/subscribe', [OrderApiController::class, 'create']);
 	Route::post('/enroll/update/status', [OrderApiController::class, 'status']);
 	Route::get('/my/course/{active}', [OrderApiController::class, 'courses']);
@@ -62,7 +63,6 @@ Route::get('/get/topics', [TopicApiController::class, 'index']);
 Route::get('/get/topic/{id}', [TopicApiController::class, 'show']);
 
 Route::get('/get/courses', [CourseApiController::class, 'index']);
-Route::get('/get/courses/user_id/{user_id}', [CourseApiController::class, 'index']);
 Route::get('/get/course/{id}', [CourseApiController::class, 'show']);
 
 Route::get('/get/syllabuses', [SyllabusApiController::class, 'index']);

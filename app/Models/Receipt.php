@@ -23,6 +23,7 @@ class Receipt extends Model
     protected $fillable = [
         'user_id',
         'course_id',
+        'enrollment_id',
         'file_path'
     ];
 
@@ -36,6 +37,7 @@ class Receipt extends Model
         'id',
         'user_id',
         'course_id',
+        'enrollment_id',
         'created_at',
         'updated_at'
     ];   
@@ -43,7 +45,8 @@ class Receipt extends Model
     protected $casts = [ 
         'id' => 'string', 
         'course_id' => 'string',
-        'user_id' => 'string'
+        'user_id' => 'string',
+        'enrollment_id' => 'string'
     ];
 
     public function scopeCreatedAt(Builder $query, $date): Builder
@@ -54,7 +57,14 @@ class Receipt extends Model
     public function scopeCourseId(Builder $query, $course_id): Builder
     { 
         return $query->where('course_id', '=', $course_id);
-    }    
+    }   
+    
+    public function scopeCheckEnrollmentExist(Builder $query, $id, $enrollment_id, $course_id): Builder
+    { 
+        return Receipt::where('enrollment_id', $enrollment_id)
+        ->where('user_id', $id)
+        ->where('course_id', $course_id);
+    } 
 
     /**
     * Get the course that owns the syllabus.

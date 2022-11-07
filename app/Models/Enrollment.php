@@ -31,7 +31,8 @@ class Enrollment extends Model
         'amount',
         'status',
         'expiry_date',
-        'total_marks'    
+        'total_marks',
+        'certificate_path'
     ];
     
     /**
@@ -58,7 +59,6 @@ class Enrollment extends Model
         'topic_id' => 'string',
         'enrollment_id' => 'string',
         'duration' => 'string',
-        'certification' => 'string',
         'total_marks' => 'string',
         'is_completed' => 'string'
     ];

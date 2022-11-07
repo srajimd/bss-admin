@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Course;
+use App\Models\Enrollment;
+use App\Models\User;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Arr;
 
@@ -18,13 +21,13 @@ class CourseApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
-        $user_id='';
-       
-        if($request->has('user_id')) 
-        {  
-            $input = (object) $request->all();
-            $user_id = (int)$request->input('user_id');
+    {      
+        $is_user_logged = auth('sanctum')->check() ? "Y" : "N"; 
+
+        $user_id = '';
+
+        if($is_user_logged == 'Y'){
+            $user_id = auth('sanctum')->user()->id;            
         }
 
         if($request->has('items_per_page')){
@@ -34,20 +37,77 @@ class CourseApiController extends Controller
         }
 
         $courses = QueryBuilder::for(Course::class)
-                        ->leftJoin("enrollments",function($join) use($user_id){                           
-                            $join->on("enrollments.course_id","=","courses.id")
-                                ->where("enrollments.user_id","=",$user_id);
-                        })
-                        ->where('courses.status','1')
-                        ->select(DB::raw('courses.*,IF(enrollments.status=1, 1, 0) AS is_subscribed'))
+                        ->where('status','1')
                         ->allowedFilters([
                             'name',
-                            AllowedFilter::exact('courses.status'),
-                            AllowedFilter::scope('courses.created_at'),
-                            AllowedFilter::scope('courses.topic_id'),
+                            AllowedFilter::exact('status'),
+                            AllowedFilter::scope('created_at'),
+                            AllowedFilter::scope('topic_id'),
                         ])                        
                         ->sortable(['id' => 'desc'])
-                        ->paginate($items_per_page);        
+                        ->paginate($items_per_page); 
+                        
+        foreach($courses as $ckey => $course){
+            $courses[$ckey]->enrollment_id = "0";
+            $courses[$ckey]->is_subscribed = "0";
+
+            if($user_id){
+                $enrollment = Enrollment::where('course_id', $course->id)
+                        ->where('user_id', $user_id)
+                        ->where('status', 1)
+                        ->select('enrollments.id')
+                        ->first();
+
+                if($enrollment){
+                    $courses[$ckey]->enrollment_id = $enrollment->id;
+                    $courses[$ckey]->is_subscribed = "1";
+                }
+            }
+        }
+
+        return response()->json([
+                                'data'    => $courses,  
+                                'status'  => 'success'
+                            ], 200);                         
+    }
+
+    public function coursesList(Request $request)
+    {
+        $id = auth()->user()->id; 
+
+        if($request->has('items_per_page')){
+            $items_per_page = (int)$request->input('items_per_page');
+        }else{
+            $items_per_page = '20';
+        }
+
+        $courses = QueryBuilder::for(Course::class)
+                        ->where('status','1')
+                        ->allowedFilters([
+                            'name',
+                            AllowedFilter::exact('status'),
+                            AllowedFilter::scope('created_at'),
+                            AllowedFilter::scope('topic_id'),
+                        ])                        
+                        ->sortable(['id' => 'desc'])
+                        ->paginate($items_per_page); 
+                        
+        foreach($courses as $ckey => $course){
+            $enrollment = Enrollment::where('course_id', $course->id)
+                    ->where('user_id', $id)
+                    ->where('status', 1)
+                    ->select('enrollments.id')
+                    ->first();
+
+            //print_r($enrollment->id); exit;
+
+            $courses[$ckey]->enrollment_id = "0";
+            $courses[$ckey]->is_subscribed = "0";
+            if($enrollment){
+                $courses[$ckey]->enrollment_id = $enrollment->id;
+                $courses[$ckey]->is_subscribed = "1";
+            }
+        }
 
         return response()->json([
                                 'data'    => $courses,  

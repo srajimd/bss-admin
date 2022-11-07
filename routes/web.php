@@ -100,6 +100,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('imports', ImportController::class);
 
         Route::resource('enrollments', EnrollmentController::class); 
+        Route::get('/showaddress', [EnrollmentController::class,'showAddress'])->name('showaddress');
+        Route::post('/post/updatestatus', [EnrollmentController::class,'updateStatus'])->name('post.updatestatus');  
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.home');    
         Route::get('/', [DashboardController::class, 'index']);   

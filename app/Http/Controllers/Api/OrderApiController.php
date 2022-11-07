@@ -184,7 +184,7 @@ class OrderApiController extends Controller
         
         //DB::enableQueryLog();
         $users_data = Enrollment::join('users', 'users.id', '=', 'enrollments.user_id')
-        ->join('courses', 'courses.id', '=', 'enrollments.user_id')
+        ->join('courses', 'courses.id', '=', 'enrollments.course_id')
         ->join('topics', 'topics.id', '=', 'courses.topic_id')
         ->select('courses.id as course_id', 'courses.name as course_name', 'users.name as user_name', 'users.id as user_id', 'enrollments.id as enrollment_id', 'enrollments.certificate_path', 'topics.id as topic_id', 'topics.name as topic_name')
         ->where('enrollments.status', 1)
@@ -206,7 +206,7 @@ class OrderApiController extends Controller
                 ->where('answers.correct_answer',1)
                 ->count(); 
 
-            if($question_attempt_count<8) continue;
+            //if($question_attempt_count<8) continue;
 
             $grade = Enrollment::getGrade($question_attempt_count);
 
