@@ -60,7 +60,10 @@ class HardCopyRequestApiController extends Controller
             'city'        => 'required',  
             'state'        => 'required',  
             'zipcode'        => 'required',  
-            'mobile'        => 'required',      
+            'mobile'        => 'required',
+            'amount'    => 'required', 
+            'transaction_id'  => 'required',
+            'status'        => 'required',     
         ]);
 
         if ($validator->fails()) {
@@ -81,7 +84,10 @@ class HardCopyRequestApiController extends Controller
             'city'      => $request->city,
             'state'      => $request->state,
             'zipcode'      => $request->zipcode,
-            'mobile'      => $request->mobile
+            'mobile'      => $request->mobile,
+            'amount'      => $request->amount,
+            'transaction_id'  => $request->transaction_id,
+            'status'        => $request->status
         ]);
 
         return response()->json([   

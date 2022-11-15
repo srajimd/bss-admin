@@ -36,12 +36,40 @@
                                 <tr><td><b>Zipcode</b></td><td>{{ $hardcopyrequest->zipcode }}</td></tr>                              
                                 <tr><td><b>Country</b></td><td>{{ $hardcopyrequest->country }}</td></tr> 
                                 <tr><td><b>Email Address</b></td><td>{{ $hardcopyrequest->email }}</td></tr>
-                                <tr><td><b>Mobile Number</b></td><td>{{ $hardcopyrequest->mobile }}</td></tr>                      
+                                <tr><td><b>Mobile Number</b></td><td>{{ $hardcopyrequest->mobile }}</td></tr>                                                   
                             </tbody>
                         </table>                       
-                    </div>
+                    </div>                   
                 </div>                                        
             </div>             
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Paid Details</h3>
+            </div>
+            <div class="card-body table-responsive">
+                <div class="row">
+                    <div class="col-sm-12">                                               
+                        <table class="table">                           
+                            <tbody>
+                                <tr><td><b>Amount</b></td><td>{{ $hardcopyrequest->amount }}</td></tr>
+                                <tr>
+                                    <td><b>Status</b></td>
+                                    <td>
+                                        @if( $hardcopyrequest->status == 1)
+                                        <label class="badge badge-success ml-4">Paid</label>
+                                        @else
+                                        <label class="badge badge-danger ml-4">Pending</label>
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr><td><b>Transaction ID</b></td><td>{{ $hardcopyrequest->transaction_id }}</td></tr>
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div> 

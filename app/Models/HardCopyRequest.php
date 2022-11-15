@@ -29,7 +29,10 @@ class HardCopyRequest extends Model
         'city',
         'state',
         'zipcode',
-        'mobile'
+        'mobile',
+        'amount',
+        'transaction_id',
+        'status'
     ];
 
     /**
@@ -50,7 +53,8 @@ class HardCopyRequest extends Model
         'id' => 'string', 
         'course_id' => 'string',
         'user_id' => 'string',
-        'enrollment_id' => 'string'
+        'enrollment_id' => 'string',
+        'status' => 'string'
     ];
 
     public function scopeCreatedAt(Builder $query, $date): Builder

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Settings;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -54,7 +55,7 @@ class OrderApiController extends Controller
         $user_enrolled = Enrollment::where('user_id', $id)
                                     ->where('status', '1')
                                     ->where('course_id', $request->course_id)
-                                    ->where('expiry_date', '>', $now)    
+                                    ->where('expiry_date', '>=', $now)    
                                     ->count(); 
         //dd(DB::getQueryLog()); 
         if(!$course){
@@ -69,12 +70,18 @@ class OrderApiController extends Controller
                             ], 400); 
         }else{
 
+            $settings = Settings::where("settings.delete_flag", 'N')
+            ->select('*')
+            ->orderBy('settings.id', 'desc')                        
+            ->first();
+
             $enrollment = Enrollment::create([
                 'user_id'        => $id,
                 'course_id'      => $request->course_id,
                 'name'           => $course->name,
                 'duration'       => $course->duration,
                 'amount'         => $course->amount,
+                'total_marks'    => $settings->total_marks,
                 'expiry_date'    => Carbon::now()->addDays((int)$course->duration),               
             ]);
 
@@ -190,9 +197,14 @@ class OrderApiController extends Controller
         ->where('enrollments.status', 1)
         ->whereDate('expiry_date','<',$now)
         ->get();
-           
 
-        //dd(DB::getQueryLog());        
+        //dd(DB::getQueryLog());   
+
+        $settings = Settings::where("settings.delete_flag", 'N')
+        ->select('*')
+        ->orderBy('settings.id', 'desc')                        
+        ->first();
+             
         $user_data = [];
         foreach($users_data as $ukey => $userdata){
 
@@ -220,7 +232,8 @@ class OrderApiController extends Controller
                 'enrollment_id' => $userdata->enrollment_id,
                 'topic_id' => $userdata->topic_id,
                 'topic_name' => $userdata->topic_name,
-                'grade' => $grade
+                'grade' => $grade,
+                'hard_copy_charge' => !empty($settings->hard_copy_charge)?$settings->hard_copy_charge:"0"
             ];
             
             $user_data[$ukey] = $enroll_data;

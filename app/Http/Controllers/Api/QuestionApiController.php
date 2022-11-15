@@ -221,7 +221,7 @@ class QuestionApiController extends Controller
         $now = Carbon::now();
         $enrollment = Enrollment::where('course_id', $request->course_id)
                             ->where('status', 1)
-                            /*->where('expiry_date','>',$now)*/
+                            ->where('expiry_date','>=',$now)
                             ->where('user_id', '=', $id)
                             ->select('id as enrollment_id', DB::raw("'{$now}' as date"), 'duration', 'total_marks', 'expiry_date')
                             ->get();
@@ -233,7 +233,7 @@ class QuestionApiController extends Controller
                                 'status'    => 'failure'
                             ], 400);            
         }else{  
-            $is_completed=0; 
+            $is_completed="1"; 
             $exam_details = [];           
             foreach($enrollment as $ekey => $enroll){
                 if($enroll->expiry_date < $now){
@@ -247,12 +247,13 @@ class QuestionApiController extends Controller
                         ->where('user_id', $id)             
                         ->where('course_id', $request->course_id) 
                         ->where('enrollment_id', $enroll->enrollment_id)
+                        ->where('answer_id', 0)
                         ->get();
                 //dd(DB::getQueryLog());      
                 //echo $id, '___', $request->course_id, '___', $enroll->enrollment_id;
                 //echo count($results); exit;    
                 if(count($results)>0){
-                    $is_completed=1;
+                    $is_completed="0";
                 }
 
                 $exam_details[$ekey] = $enroll;

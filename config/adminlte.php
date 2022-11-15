@@ -292,13 +292,19 @@ return [
                     'url'   => 'admin/questions',
                     'shift' => 'ml-3',
                 ],
+                
+                [
+                    'text'  => 'Settings',
+                    'url'   => 'admin/course/settings',
+                    'shift' => 'ml-3',
+                ] 
             ],
         ],
         [
             'text'        => 'enrollments',
             'url'         => 'admin/enrollments',
             'icon'        => 'nav-icon fas fa-tags',
-        ], 
+        ]
     ],
 
     /*

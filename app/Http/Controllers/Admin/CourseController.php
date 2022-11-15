@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Topic;
+use App\Models\Settings;
 use Spatie\Permission\Models\Role;
 use DB;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -193,5 +194,35 @@ class CourseController extends Controller
         }else{
             return redirect()->route('courses.index', $querystring);
         }         
+    }
+
+    public function settings(Request $request){
+        //DB::enableQueryLog();
+        $settings = Settings::where("settings.delete_flag", 'N')
+                        ->select('*')
+                        ->orderBy('settings.id', 'desc')                        
+                        ->first();
+        //dd(DB::getQueryLog());   
+        //echo '<pre>'; print_r($settings); echo '</pre>'; exit;
+        return view('admin.courses.settings', compact('settings'));
+    }
+    public function updatesettings(Request $request){
+        $this->validate($request, [
+            'hard_copy_charge'      => 'required|numeric|gte:0',
+            'total_marks'  => 'required|numeric|gte:0'
+        ]);
+
+        $input = $request->only(['hard_copy_charge', 'total_marks']); 
+        $settings = Settings::Active($input['hard_copy_charge'], $input['total_marks']);
+
+        if($settings->count()){
+            $settings->update($input);
+        }else{
+            Settings::where('delete_flag', 'N')
+            ->update(['delete_flag'=>'Y']);
+            
+            $settings->create($input);
+        }
+        return redirect()->route('course.settings')->with('success','Success! settings saved successfully');
     }
 }

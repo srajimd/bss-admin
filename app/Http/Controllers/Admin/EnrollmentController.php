@@ -56,7 +56,7 @@ class EnrollmentController extends Controller
 
             $hardcopyrequest_count = HardCopyRequest::join('users','users.id', '=', 'hard_copy_requests.user_id')
                         ->where("hard_copy_requests.enrollment_id", $enrollments->id)
-                        ->select('users.name as customer','users.email','hard_copy_requests.id','hard_copy_requests.address1','hard_copy_requests.city','hard_copy_requests.state','hard_copy_requests.zipcode','hard_copy_requests.country','hard_copy_requests.mobile','hard_copy_requests.created_at')
+                        ->select('users.name as customer','hard_copy_requests.id')
                         ->orderBy('hard_copy_requests.id', 'desc')                        
                         ->count();           
             
@@ -78,7 +78,7 @@ class EnrollmentController extends Controller
         //DB::enableQueryLog();
         $hardcopyrequest = HardCopyRequest::join('users','users.id', '=', 'hard_copy_requests.user_id')
                         ->where("hard_copy_requests.enrollment_id", $request->input('enrollment_id'))
-                        ->select('users.name as customer','users.email','hard_copy_requests.id','hard_copy_requests.address1','hard_copy_requests.city','hard_copy_requests.state','hard_copy_requests.zipcode','hard_copy_requests.country','hard_copy_requests.mobile','hard_copy_requests.created_at')
+                        ->select('users.name as customer','users.email','hard_copy_requests.id','hard_copy_requests.address1','hard_copy_requests.city','hard_copy_requests.state','hard_copy_requests.zipcode','hard_copy_requests.country','hard_copy_requests.mobile','hard_copy_requests.amount','hard_copy_requests.transaction_id','hard_copy_requests.status','hard_copy_requests.created_at')
                         ->orderBy('hard_copy_requests.id', 'desc')                        
                         ->first();
         //dd(DB::getQueryLog());   

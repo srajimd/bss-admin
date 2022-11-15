@@ -87,9 +87,9 @@
                                         <!--th>@sortablelink('name', 'email')</th-->
                                         <!--th>@sortablelink('duration', 'Duration (days)')</th-->
                                         <th width="15%">Amount & Status</th> 
-                                        <th>@sortablelink('created_at', 'Enrollment Date')</th>
+                                        <th width="10%">@sortablelink('created_at', 'Enrollment Date')</th>
                                         <th width="10%">@sortablelink('expiry_date', 'Expiry Date')</th>
-                                        <th>Hard Copy Request</th>  
+                                        <th width="10%">Hard Copy Request</th>  
                                         <th width="10%">Action</th>                                       
                                     </tr>
                                 </thead>

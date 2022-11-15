@@ -81,6 +81,9 @@ Route::prefix('admin')->group(function () {
         Route::post('/courses/deleteAll', [CourseController::class, 'deleteAll'])->name('courses.deleteAll');
         Route::resource('courses', CourseController::class);
 
+        Route::get('course/settings', [CourseController::class, 'settings'])->name('course.settings');
+        Route::patch('course/updatesettings', [CourseController::class, 'updatesettings'])->name('course.updatesettings');
+
         Route::post('/syllabi/deleteAll', [SyllabusController::class, 'deleteAll'])->name('syllabi.deleteAll');
         Route::resource('syllabi', SyllabusController::class); 
 

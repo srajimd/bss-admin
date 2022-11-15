@@ -55,7 +55,8 @@ class ReceiptApiController extends Controller
 
 	    $validator = Validator::make($input, [        	
             'course_id' => 'required', 
-            'receipt'        => 'required'         
+            'enrollment_id' => 'required', 
+            'receipt'   => 'required'         
         ]);
 
         if ($validator->fails()) {
@@ -68,12 +69,10 @@ class ReceiptApiController extends Controller
                             ], 400);
         }        
         
-        $file_path =  $this->createImage($input['receipt']);
-        if(empty($request->enrollment_id)) $request->enrollment_id=0;        
+        $file_path =  $this->createImage($input['receipt']);      
 
         $isEnrollExist = Receipt::CheckEnrollmentExist($id, $request->enrollment_id, $request->course_id);
-
-    
+            
         if($isEnrollExist->count()){
             $receipt = Receipt::where('enrollment_id', $request->enrollment_id)
                         ->update(['file_path' => $file_path]);

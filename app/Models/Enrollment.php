@@ -108,16 +108,16 @@ class Enrollment extends Model
         $topic_name = $userdata->topic_name;
         $user_name = 'Mr/Mrs/Miss. ' . ucwords($userdata->user_name);
 
-        imagettftext($png_image, 20, 0, 230, 75, $black, $font_path, $regNo);
-        imagettftext($png_image, 20, 0, 620, 75, $black, $font_path, $today);    
-        imagettftext($png_image, 20, 0, 250, 545, $black, $font_path, $user_name);
-        imagettftext($png_image, 20, 0, 45, 635, $black, $font_path, $userdata->course_name);
-        imagettftext($png_image, 20, 0, 500, 685, $black, $font_path, $currentYear);
-        imagettftext($png_image, 20, 0, 45, 725, $black, $font_path, $topic_name);
-        imagettftext($png_image, 20, 0, 45, 775, $black, $font_path, '');
-        imagettftext($png_image, 20, 0, 250, 822, $black, $font_path, $grade);
-        imagettftext($png_image, 20, 0, 90, 870, $black, $font_path, $grade);
-        imagettftext($png_image, 20, 0, 45, 915, $black, $font_path, $grade);
+        imagettftext($png_image, 20, 0, 200, 73, $black, $font_path, $regNo);
+        imagettftext($png_image, 20, 0, 550, 73, $black, $font_path, $today);    
+        imagettftext($png_image, 20, 0, 250, 454, $black, $font_path, $user_name);
+        imagettftext($png_image, 20, 0, 45, 530, $black, $font_path, $userdata->course_name);
+        imagettftext($png_image, 20, 0, 430, 570, $black, $font_path, $currentYear);
+        imagettftext($png_image, 20, 0, 45, 605, $black, $font_path, $topic_name);
+        imagettftext($png_image, 20, 0, 45, 650, $black, $font_path, '');
+        imagettftext($png_image, 20, 0, 250, 686, $black, $font_path, $grade);
+        imagettftext($png_image, 20, 0, 90, 722, $black, $font_path, $grade);
+        imagettftext($png_image, 20, 0, 45, 760, $black, $font_path, $grade);
     
         // Send Image to Browser 
         $certificate_file_name = $userdata->course_id.'-'.date('mdYHis').'-'.uniqid().'.png';
