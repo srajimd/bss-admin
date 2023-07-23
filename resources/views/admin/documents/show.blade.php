@@ -1,17 +1,17 @@
 @extends('adminlte::page')
 
-@section('title', 'Admin | Units Management')
+@section('title', 'Admin | Study Materials')
 
 @section('content_header')
     <div class="row justify-content-between">
         <div class="col-4">
-        <h1 class="m-0 text-dark">Units</h1>
+        <h1 class="m-0 text-dark">Study Materials</h1>
         </div>
         <div class="col-6 text-right">
             @php
             $qString = request()->query();            
             @endphp
-            <a class="btn btn-primary btn-sm" href="{{ route('units.index', $qString) }}">Back</a>            
+            <a class="btn btn-primary btn-sm" href="{{ route('documents.index', $qString) }}">Back</a>            
         </div>
     </div>   
 @stop
@@ -28,14 +28,12 @@
                     <div class="col-sm-12">                                               
                         <table class="table ">                           
                             <tbody>                                 
-                                <tr><td><b>Id</b></td><td>#{{ $unit->id }}</td></tr>
-                                <tr><td><b>Name</b></td><td>{{ $unit->name }}</td></tr>
-                                @if($unit->syllabus)
-                                <tr><td><b>Syllabus</b></td><td>{{ $unit->syllabus->name }}</td></tr>
-                                @endif                                
-                                <tr><td><b>Date Added</b></td><td>{{ $unit->created_at }}</td></tr>
-                                <tr><td><b>Date Modified</b></td><td>{{ $unit->updated_at }}</td></tr>
-                                <tr><td><b>Status</b></td><td> @if($unit->status)
+                                <tr><td><b>Id</b></td><td>#{{ $document->id }}</td></tr>
+                                <tr><td><b>Name</b></td><td>{{ $document->name }}</td></tr>
+                                <tr><td><b>File Name</b></td><td><a href="{{ str_replace('public/','',url('/').Storage::url('app/')) . $document->file_path}}" target="_blank">{{ $document->file_name }}</a></td></tr>                    
+                                <tr><td><b>Date Added</b></td><td>{{ $document->created_at }}</td></tr>
+                                <tr><td><b>Date Modified</b></td><td>{{ $document->updated_at }}</td></tr>
+                                <tr><td><b>Status</b></td><td> @if($document->status)
                                         <label class="badge badge-success">Active</label>
                                     @else
                                         <label class="badge badge-danger">Inactive</label>

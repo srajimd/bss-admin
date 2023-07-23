@@ -78,7 +78,7 @@
                             $answer_row = 0;
                         @endphp
                         @foreach(old('answer', $answers) as $key => $value)                       
-                        <tr id="answer-row{{ $answer_row }}">                                        
+                        <tr id="answer-row{{ $answer_row }}" class="answer-row">                                        
                         <td class="text-right">
                             @php /*
                             <input type="text" 
@@ -98,7 +98,7 @@
 
                         <td class="text-left">
                             <button type="button" 
-                            onclick="$('#answer-row{{ $answer_row }}').remove()" 
+                            onclick="$('#answer-row{{ $answer_row }}').remove();if($('.answer-row').length < 4) $('#addanswer').attr('disabled', false);" 
                             data-toggle="tooltip" 
                             title="Remove" 
                             class="btn btn-danger">
@@ -118,7 +118,7 @@
                             onclick="addAnswer()" 
                             data-toggle="tooltip" 
                             title="Add Answer" 
-                            class="btn btn-primary">
+                            class="btn btn-primary" id="addanswer">
                             <i class="fa fa-plus-circle"></i></button>
                         </td>
                         </tr>
@@ -144,17 +144,29 @@
 <script type="text/javascript">
 var answer_row = '{{ $answer_row }}';
 
+if($('.answer-row').length >= 4){
+    $('#addanswer').attr('disabled', true);
+}else{
+    $('#addanswer').attr('disabled', false);
+}
+
 function addAnswer() {
-    html  = '<tr id="answer-row' + answer_row + '">';
+    html  = '<tr id="answer-row' + answer_row + '" class="answer-row">';
    
     //html += '  <td class="text-right"><input type="text" name="answer[' + answer_row + '][name]" value="" placeholder="Answer" class="form-control" /></td>';
 
     html += '  <td class="text-right"><textarea name="answer[' + answer_row + '][name]" class="form-control" placeholder="Answer"></textarea></td>';
    
-    html += '  <td class="text-left"><button type="button" onclick="$(\'#answer-row' + answer_row + '\').remove();" data-toggle="tooltip" title="Remove" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>';
+    html += '  <td class="text-left"><button type="button" onclick="$(\'#answer-row' + answer_row + '\').remove();if($(\'.answer-row\').length < 4) $(\'#addanswer\').attr(\'disabled\', false);" data-toggle="tooltip" title="Remove" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>';
     html += '</tr>';
 
-    $('#answer tbody').append(html);   
+    $('#answer tbody').append(html);  
+    
+    if($('.answer-row').length >= 4){
+        $('#addanswer').attr('disabled', true);
+    }else{
+        $('#addanswer').attr('disabled', false);
+    }
 
     answer_row++;
 }

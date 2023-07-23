@@ -72,7 +72,8 @@
                                             <label for="mainCheckbox" class="custom-control-label"></label>
                                             </div>
                                         </th>
-                                        <th>@sortablelink('course_identifier', 'Id')</th>
+                                        <th>@sortablelink('id', 'Id')</th>
+                                        <th>@sortablelink('course_identifier', 'Code')</th>
                                         <th>@sortablelink('name', 'Name')</th>
                                         <th>@sortablelink('duration', 'Duration')</th>
                                         <th>@sortablelink('amount', 'Amount')</th>
@@ -91,10 +92,11 @@
                                         <label for="customCheckbox{{ $course->id }}" class="custom-control-label"></label>
                                         </div>
                                     </td>    
-                                    <td>#{{ $course->course_identifier }}</td>
-                                    <td>{{ $course->name }}</td>
+                                    <td>#{{ $course->id }}</td>
+                                    <td>{{ $course->course_identifier }}</td>
+                                    <td width="30%">{{ $course->name }} </td>
                                     <td>{{ $course->duration }}</td>
-                                    <td>{{ $course->amount }}</td>
+                                    <td>{{ number_format($course->amount, 2, '.','') }}</td>
                                     <td>
                                     @if($course->status)
                                         <label class="badge badge-success">Active</label>

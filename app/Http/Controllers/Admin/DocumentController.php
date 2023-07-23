@@ -121,6 +121,8 @@ class DocumentController extends Controller
      */
     public function show($id)
     {
+        $document = $document = Document::find($id);   
+        return view('admin.documents.show', compact('document'));
         
     }
 

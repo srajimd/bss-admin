@@ -23,27 +23,32 @@ class QuestionsImport implements ToCollection, WithStartRow
     */
     public function collection(Collection $collection)
     {
+        //echo'<pre>'; print_r($collection); exit;
 
         foreach ($collection as $row) 
         {               
 
+            if(empty($row[0])){
+                break;
+            }
             $question = Question::updateOrCreate(
                 [
                     'id' => (int)$row[0]
                 ],
                 [
-                    'course_id' => (int)$row[1],
-                    'name' => $row[2],
-                    'status' => (int)$row[3]
+                    'topic_id' => (int)$row[1],
+                    'course_id' => (int)$row[2],
+                    'name' => $row[3],
+                    'status' => (int)$row[4]
                 ]
             );       
 
             Answer::where('question_id', $question->id)->delete(); 
 
-            if($this->headings > 4){
-                for($i=4; $i<$this->headings; $i++){
+            if($this->headings > 5){
+                for($i=5; $i<$this->headings; $i++){
                     if($row[$i] != ''){
-                        if($i == '4'){
+                        if($i == '5'){
                             $correct_answer = 1; 
                         }else{
                             $correct_answer = 0; 
